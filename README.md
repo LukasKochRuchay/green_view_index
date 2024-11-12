@@ -5,22 +5,22 @@ A green view index for perceived bikeability based on Google Street View API and
 
 ## Project Organization
 
-├── .devcontainer  
-│  
-├── notebooks  
-│   ├── 01_street_view_api.ipynb  
-│   ├── 02_get_street_view_images.ipynb  
-│   ├── 03_process_images.ipynb  
-│   └── 04_post_process_images.ipynb  
-│  
-├── src  
-│   ├── __init__.py  
-│   └── gvi_funcs.py  
-│  
-├── .env  
-├── .gitattributes  
-├── .gitignore  
-├── Dockerfile  
-└── README.md  
+├── .devcontainer
+│
+├── notebooks
+│ ├── 01_street_view_api.ipynb
+│ ├── 02_get_street_view_images.ipynb
+│ ├── 03_process_images.ipynb
+│ └── 04_post_process_images.ipynb
+│
+├── src
+│ ├── init.py
+│ └── gvi_funcs.py
+│
+├── .env
+├── .gitattributes
+├── .gitignore
+├── Dockerfile
+└── README.md
 =======
 │
