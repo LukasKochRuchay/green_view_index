@@ -8,10 +8,8 @@ A green view index for perceived bikeability based on Google Street View API and
 ├── .devcontainer  
 │  
 ├── notebooks  
-│   ├── 01_street_view_api.ipynb  
-│   ├── 02_get_street_view_images.ipynb  
-│   ├── 03_process_images.ipynb  
-│   └── 04_post_process_images.ipynb  
+│   ├── 01_get_street_view_images.ipynb  
+│   └── 02_calculate_greenview.ipynb  
 │  
 ├── src  
 │   ├── __init__.py  
