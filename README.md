@@ -5,6 +5,7 @@ A green view index for perceived bikeability based on Google Street View API and
 
 ## Project Organization
 
+<<<<<<< HEAD
 ├── .devcontainer  
 │  
 ├── notebooks  
@@ -22,3 +23,5 @@ A green view index for perceived bikeability based on Google Street View API and
 ├── .gitignore  
 ├── Dockerfile  
 └── README.md  
+=======
+│
