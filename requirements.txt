@@ -1,0 +1,15 @@
+pandas
+geopandas
+seaborn
+folium
+transformers
+evaluate
+accelerate
+Pillow
+shapely
+keplergl
+osmnx
+scipy
+python-dotenv
+matplotlib
+scikit-image
