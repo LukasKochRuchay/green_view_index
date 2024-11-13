@@ -12,7 +12,6 @@ import scipy
 import re
 
 
-
 def get_responses(latlon: list, point: list, api_key: str) -> list:
     """
     Retrieves a Google Street View image and capture date for a given location as metadata.
@@ -21,27 +20,64 @@ def get_responses(latlon: list, point: list, api_key: str) -> list:
         latlon (list): Latitude and longitude as [lat, lon].
         point (list): Identifier or metadata for the location.
         api_key (str): Google API key for authentication.
+        heading (bool): Derfines wheather a single direction of view is considered or not. Default is False
 
     Returns:
         list: [PIL.Image (image), datetime or None (date), list (point)]
     """
     
-    image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={latlon}&fov=120&heading=200&pitch=0&key={api_key}'
-    image_response = requests.get(image_url)
-    image = Image.open(io.BytesIO(image_response.content))
-
+def get_responses(latlon: list, point: list, api_key: str, heading=False) -> list:
+    heading_param = [90, 180, 270, 360]
+    results = []  
+    
     metadata_url = f'https://maps.googleapis.com/maps/api/streetview/metadata?location={latlon}&key={api_key}'
     metadata_response = requests.get(metadata_url)
     metadata = json.loads(metadata_response.text)
 
+    pano_id = metadata.get('pano_id')
     date_str = metadata.get('date', '')
+    location = metadata.get('location', latlon) 
 
-    if date_str:
-        date = datetime.strptime(date_str, "%Y-%m")
-        return [image, date, point]
+    
+    date = datetime.strptime(date_str, "%Y-%m") if date_str else None
+
+    if heading:
+             
+        for i in heading_param:
+            if pano_id:
+                image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&fov=120&heading={i}&pitch=0&pano={pano_id}&key={api_key}'
+            else:
+                image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={latlon}&fov=120&heading={i}&pitch=0&key={api_key}'
+            
+            image_response = requests.get(image_url)
+            image = Image.open(io.BytesIO(image_response.content))
+
+            results.append({
+                "image": image,
+                "date": date,
+                "location": location,
+                "pano_id": pano_id,
+                "point": point
+            })
+
+        return results  
+
     else:
-        return [image, None, point]
-   
+        if pano_id:
+            image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&fov=120&pitch=0&pano={pano_id}&key={api_key}'
+        else:
+            image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={latlon}&fov=120&pitch=0&key={api_key}'
+
+        image_response = requests.get(image_url)
+        image = Image.open(io.BytesIO(image_response.content))
+
+        return {
+            "image": image,
+            "date": date,
+            "location": location,
+            "pano_id": pano_id,
+            "point": point
+        }
     
     
 def greenviewindex(images: pd.Series) -> list:
