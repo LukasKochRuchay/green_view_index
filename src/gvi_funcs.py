@@ -11,74 +11,81 @@ from shapely.geometry import Polygon, LineString, Point
 import scipy
 import re
 
-    
-def get_responses(latlon: list, point: list, api_key: str, heading=False) -> list:
-    
+import requests
+import json
+from datetime import datetime
+from PIL import Image, UnidentifiedImageError
+import io
+
+def get_responses(location: list, api_key: str, heading=False) -> list:
     """
     Retrieves a Google Street View image and capture date for a given location as metadata.
 
     Args:
-        latlon (list): Latitude and longitude as [lat, lon].
-        point (list): Identifier or metadata for the location.
+        location (list): Latitude and longitude as [lat, lon].
         api_key (str): Google API key for authentication.
-        heading (bool): Derfines wheather a single direction of view is considered or not. Default is False
+        heading (bool): Defines whether multiple directions of view are considered. Default is False.
 
     Returns:
-        list: [PIL.Image (image), datetime or None (date), list (point)]
+        list or dict: If heading=True, returns a list of dictionaries with image data for each heading.
+                      If heading=False, returns a single dictionary with image data.
     """
     
     heading_param = [90, 180, 270, 360]
     results = []  
     
-    metadata_url = f'https://maps.googleapis.com/maps/api/streetview/metadata?location={latlon}&key={api_key}'
+    # Fetch metadata to get pano_id, date, and location information
+    metadata_url = f'https://maps.googleapis.com/maps/api/streetview/metadata?location={location}&key={api_key}'
     metadata_response = requests.get(metadata_url)
     metadata = json.loads(metadata_response.text)
 
     pano_id = metadata.get('pano_id')
     date_str = metadata.get('date', '')
-    location = metadata.get('location', latlon) 
+    location = metadata.get('location', location)  # Default to location if location is missing
 
-    
     date = datetime.strptime(date_str, "%Y-%m") if date_str else None
 
     if heading:
-             
         for i in heading_param:
             if pano_id:
                 image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&fov=120&heading={i}&pitch=0&pano={pano_id}&key={api_key}'
             else:
-                image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={latlon}&fov=120&heading={i}&pitch=0&key={api_key}'
-            
+                image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={location}&fov=120&heading={i}&pitch=0&key={api_key}'
+
             image_response = requests.get(image_url)
-            image = Image.open(io.BytesIO(image_response.content))
+            try:
+                image = Image.open(io.BytesIO(image_response.content))
+            except UnidentifiedImageError:
+                print(f"Error: Image not available for location {location} with heading {i}")
+                image = None
 
             results.append({
                 "image": image,
                 "date": date,
                 "location": location,
-                "pano_id": pano_id,
-                "point": point
+                "pano_id": pano_id
             })
 
-        return results  
-
+        return results 
+    if pano_id:
+        image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&fov=120&pitch=0&pano={pano_id}&key={api_key}'
     else:
-        if pano_id:
-            image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&fov=120&pitch=0&pano={pano_id}&key={api_key}'
-        else:
-            image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={latlon}&fov=120&pitch=0&key={api_key}'
+        image_url = f'https://maps.googleapis.com/maps/api/streetview?size=400x400&location={location}&fov=120&pitch=0&key={api_key}'
 
-        image_response = requests.get(image_url)
+    image_response = requests.get(image_url)
+    try:
         image = Image.open(io.BytesIO(image_response.content))
+    except UnidentifiedImageError:
+        print(f"Error: Image not available for location {location}")
+        image = None
 
-        return {
-            "image": image,
-            "date": date,
-            "location": location,
-            "pano_id": pano_id,
-            "point": point
-        }
-    
+    return {
+        "image": image,
+        "date": date,
+        "location": location,
+        "pano_id": pano_id
+    }
+
     
 def greenviewindex(images: pd.Series) -> list:
     """
@@ -114,61 +121,7 @@ def greenviewindex(images: pd.Series) -> list:
         gvi_list.append(vegetation_percentage)
     
     return gvi_list
-
-
-
-def get_edges(G, lon: pd.Series, lat: pd.Series) -> list:
-    """
-    Finds unique nearest edges in a graph for given longitude and latitude points.
-
-    Args:
-        lon (pd.Series): A pandas Series of longitude coordinates.
-        lat (pd.Series): A pandas Series of latitude coordinates.
-        G (): a networkx.classes.multidigraph.MultiDiGraph
-
-    Returns:
-        list: A list of unique edges represented as tuples of node pairs (e.g., [(node1, node2), ...]).
-              Returns an empty list if an error occurs.
-    """
-    try:
-        edges = ox.nearest_edges(G, [lon], [lat])
-        edges = list(dict.fromkeys(edges))  
-        return [k[0:2] for k in edges]
-    except Exception as e:
-        return []
-
    
-    
-def extract_edge_data(edge_list: list, G):
-    """
-    Extracts geometry and name data from the first edge in a list of edges within a graph.
 
-    Args:
-        edge_list (list): A list of edges, where each edge is a tuple (u, v) of node IDs.
-        G: A NetworkX graph or similar graph object with edge data.
-
-    Returns:
-        tuple: A tuple (geometry, name) where:
-            - geometry (LineString or None): The geometry of the edge if available and of type LineString; otherwise None.
-            - name (str or None): The name of the edge if available; otherwise None.
-            Returns (None, None) if edge_list is empty or if the edge has no data.
-    """
-    if not edge_list:
-        return None, None
-    
-    u, v = edge_list[0]
-    edge_data = G.get_edge_data(u, v)
-    
-    if edge_data is not None:
-        data = edge_data.get(0, {})
-        geometry = data.get('geometry', None)
-        name = data.get('name', None)
-        
-        if not isinstance(geometry, LineString):
-            geometry = None
-        
-        return geometry, name
-    else:
-        return None, None
 
     
