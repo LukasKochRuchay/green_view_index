@@ -11,8 +11,9 @@ from shapely.geometry import Polygon, LineString, Point
 import scipy
 import re
 
-
-def get_responses(latlon: list, point: list, api_key: str) -> list:
+    
+def get_responses(latlon: list, point: list, api_key: str, heading=False) -> list:
+    
     """
     Retrieves a Google Street View image and capture date for a given location as metadata.
 
@@ -26,7 +27,6 @@ def get_responses(latlon: list, point: list, api_key: str) -> list:
         list: [PIL.Image (image), datetime or None (date), list (point)]
     """
     
-def get_responses(latlon: list, point: list, api_key: str, heading=False) -> list:
     heading_param = [90, 180, 270, 360]
     results = []  
     
