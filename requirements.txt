@@ -13,3 +13,4 @@ scipy
 python-dotenv
 matplotlib
 scikit-image
+scikit-learn

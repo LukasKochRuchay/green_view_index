@@ -6,6 +6,7 @@ from PIL import Image, UnidentifiedImageError
 from transformers import pipeline
 import osmnx as ox
 from shapely import LineString
+from pyproj import Geod
 import io
 
 
@@ -147,4 +148,25 @@ def get_edge_data(edge_list: list, G):
     
     else:
         return None, None
+    
+
+def length_in_meters(linestring: LineString) -> float:
+    """
+    Calculate the length of a LineString geometry in meters.
+
+    Args:
+        linestring (LineString): A Shapely LineString object.
+
+    Returns:
+        float: The total length of the LineString in meters.
+    """
+
+    geod = Geod(ellps="WGS84")
+    coords = list(linestring.coords)
+    total_length = sum(
+        geod.inv(coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1])[2]
+        for i in range(len(coords) - 1)
+    )
+    return total_length
+
 
