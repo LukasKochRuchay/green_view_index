@@ -24,18 +24,20 @@ A green view index for perceived bikeability based on Google Street View API and
 
 =======
 
-
-Example Output
-Below is an example of the images used in this project:
-
-<p align="center">  
-  <img src="ressources/pic1.png" alt="Google Street View Image" width="40%" style="margin-right: 20px;" />  
-  <img src="ressources/pic2.png" alt="Vegetation Segmentation" width="40%" style="margin-left: 20px;" />  
+<p align="center">
+  <img src="ressources/pic1.png" alt="Google Street View Image" width="40%" />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="ressources/pic2.png" alt="Vegetation Segmentation" width="40%" />
 </p>
 
-Left: Google Street View Image
-Right: Vegetation Segmentation
+<br />
 
-Additional Information
-Data: Street View Static API overview
-Model: NVIDIA SegFormer-B5 (fine-tuned on Cityscapes 1024x1024)
+**Left**: Google Street View Image  
+<br />
+**Right**: Vegetation Segmentation  
+
+<br />
+
+**Data**: Street View Static API overview  
+<br />
+**Model**: NVIDIA SegFormer-B5 (fine-tuned on Cityscapes 1024x1024)  
