@@ -29,8 +29,8 @@ Example Output
 Below is an example of the images used in this project:
 
 <p align="center">  
-  <img src="ressources/pic1.png" alt="Google Street View Image" width="45%" />  
-  <img src="ressources/pic2.png" alt="Vegetation Segmentation" width="45%" />  
+  <img src="ressources/pic1.png" alt="Google Street View Image" width="40%" style="margin-right: 20px;" />  
+  <img src="ressources/pic2.png" alt="Vegetation Segmentation" width="40%" style="margin-left: 20px;" />  
 </p>
 
 Left: Google Street View Image
